@@ -1,0 +1,11 @@
+{
+    "name": "Node.js & Truffle",
+    "dockerComposeFile": "docker-compose.yml",
+    "service": "app",
+    "workspaceFolder": "/workspace",
+    "settings": {},
+    "extensions": [
+        "dbaeumer.vscode-eslint"
+    ],
+    "remoteUser": "root"
+}

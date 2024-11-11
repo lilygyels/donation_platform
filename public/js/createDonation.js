@@ -1,105 +1,50 @@
-const App = {
+const createDonation = {
     web3Provider: null,
     contracts: {},
     account: null,
 
     init: async () => {
-        // Initialize the Ethereum connection
-        await App.initWeb3();
+        if (window.ethereum) {
+            window.ethereum.on('accountsChanged', (accounts) => {
+                if (accounts.length === 0) {  // Check if user disconnected
+                    createDonation.handleLoginState(false);
+                } else if (accounts[0] !== createDonation.account) { // Check if account changed
+                    createDonation.account = accounts[0];
+                    createDonation.handleLoginState(true);
+                    window.location.reload(); // Reload the page
+                }
+            });
 
-        // Load and initialize your contract
-        await App.initContract();
-
-        App.bindFormSubmission();
-        App.loadCharityData();
-
-    },
-
-    initWeb3: async () => {
-        if (typeof web3 !== 'undefined') {
-            // Use the injected web3 provided by MetaMask or other wallet
-            App.web3Provider = web3.currentProvider;
-            web3 = new Web3(App.web3Provider);
-        } else {
-            // Fallback to a local development provider if not available
-            App.web3Provider = new Web3.providers.HttpProvider('http://127.0.0.7111'); // Update with your local Ethereum node URL
-            web3 = new Web3(App.web3Provider);
+            window.ethereum.on('chainChanged', (_chainId) => {
+                window.location.reload();
+            });
         }
 
-        // Get the user's Ethereum accounts
-        const accounts = await web3.eth.getAccounts();
-        App.account = accounts[0]; // Use the first account as the default account
+        await createDonation.initContract();
+        await createDonation.loadCharityData();
+        createDonation.bindEvents();
+        await createDonation.checkLogin();
     },
 
     initContract: async () => {
         try {
-            // Load DonationToken.json
             const response = await fetch('DonationToken.json');
             if (!response.ok) {
-                throw new Error(`Failed to fetch DonationToken.json. Status: ${response.status}`);
+                throw new Error(`Failed to fetch Token.json. Status: ${response.status}`);
             }
 
-            const tokenData = await response.json();
-            const donationTokenArtifact = tokenData;
-
-            // Initialize the contract with TruffleContract
-            App.contracts.donationToken = TruffleContract(donationTokenArtifact);
-            App.contracts.donationToken.setProvider(App.web3Provider);
-
+            const data = await response.json();
+            const MyTokenArtifact = data;
+            createDonation.contracts.DonationToken = TruffleContract(MyTokenArtifact);
+            createDonation.contracts.DonationToken.setProvider(createDonation.web3Provider);
         } catch (err) {
             console.error('Error initializing contract:', err);
         }
     },
 
-    bindFormSubmission: () => {
-        const createDonationPlanForm = document.getElementById('createDonationPlanForm');
-        createDonationPlanForm.addEventListener('submit', async (event) => {
-            event.preventDefault();
-
-            try {
-                const goal = document.getElementById('goal').value;
-                const duration = document.getElementById('duration').value;
-                const donationDescription = document.getElementById('donationDescription').value;
-
-                // Get the contract instance
-                const donationTokenInstance = await App.contracts.donationToken.deployed();
-
-                const accounts = await web3.eth.getAccounts();
-
-                // Call the contract function to create a donation plan
-                await donationTokenInstance.createDonationPlan(
-                    goal,
-                    duration,
-                    accounts[0],
-                    donationDescription,
-                    { from: App.account }
-                );
-
-                // Optionally, update the UI or show a success message
-                Swal.fire(
-                    'Donation plan created successfully.!',
-                    '',
-                    'success'
-                ).then(function () {
-                    setTimeout(function () {
-                        window.location.href = "./createDonation.html";
-                    }, 100); // Delay of 100 milliseconds
-                });
-            } catch (error) {
-                console.error('Error creating donation plan:', error);
-                // Display an error pop-up message
-                Swal.fire(
-                    'Error!',
-                    'There was an error during the donation process.',
-                    'error'
-                );
-            }
-        });
-    },
-
     loadCharityData: async () => {
         try {
-            const donationTokenInstance = await App.contracts.donationToken.deployed();
+            const donationTokenInstance = await createDonation.contracts.DonationToken.deployed();
             // Call the contract's getNumDonationPlans method to get the number of donation plans
             const numDonationPlans = await donationTokenInstance.getNumDonationPlans();
 
@@ -128,11 +73,7 @@ const App = {
                 card.className = "contents-card";
 
                 // Create the HTML content for the card
-                console.log(App.account)
-                if (App.account === charityData.beneficiary) {
-
-
-                    card.innerHTML = `
+                card.innerHTML = `
                     <div class="contents-cards-image">
                         <img src="./image/donation.jpg" alt="">
                     </div>
@@ -154,23 +95,133 @@ const App = {
                             <div class="progress-bar bg-success" role="progressbar" style="width: ${(charityData.totalDonated / charityData.goal) * 100}%;"
                                 aria-valuenow="${(charityData.totalDonated / charityData.goal) * 100}" aria-valuemin="0" aria-valuemax="100">${(charityData.totalDonated / charityData.goal) * 100}%</div>
                         </div>
+                        <button type="button" class="btn btn-info text-light" data-bs-toggle="modal"
+                            data-bs-target="#exampleModal" data-bs-whatever="@mdo" id="donate-btn">Donate</button>
                     </div>
                 `;
-                    count++;
-                    // Append the card to the container
-                    cardcontainer.appendChild(card);
-                }
-
+                count++;
+                // Append the card to the container
+                cardcontainer.appendChild(card);
             });
         } catch (error) {
             console.error('Error loading charity data:', error);
         }
     },
 
+    checkLogin: async () => {
+        if (typeof window.ethereum !== 'undefined') {
+            try {
+                const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+                if (accounts.length > 0) {
+                    createDonation.account = accounts[0];
+                    createDonation.handleLoginState(true);
+                } else {
+                    createDonation.handleLoginState(false);
+                }
+            } catch (error) {
+                console.error("Error checking initial login state:", error);
+                createDonation.handleLoginState(false);
+            }
+        } else {
+            console.log("MetaMask not detected");
+            createDonation.handleLoginState(false);
+        }
+    },
 
+    handleLoginState: (isLoggedIn) => {
+        const loginButton = document.getElementById('loginButton');
+        const accountAddressSpan = document.getElementById('accountAddress');
+
+        if (isLoggedIn) {
+            loginButton.style.display = 'none';
+            accountAddressSpan.style.display = 'inline';
+            accountAddressSpan.textContent = createDonation.account;
+        } else {
+            loginButton.style.display = 'block'; // or 'inline-block'
+            loginButton.textContent = 'Login';
+            accountAddressSpan.style.display = 'none';
+            loginButton.addEventListener('click', createDonation.handleLogin);  // Add listener if not logged in
+        }
+    },
+
+    handleLogin: async () => {
+        if (typeof window.ethereum !== 'undefined') {
+            try {
+                const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                if (accounts.length > 0) {
+                    createDonation.account = accounts[0];
+                    createDonation.handleLoginState(true);
+                }
+            } catch (error) {
+                console.error("Error requesting accounts:", error);
+            }
+        } else {
+            console.log('Please install MetaMask to interact with this dApp.');
+        }
+    },
+
+    donateToCharity: async (_planIndex, _amount) => {
+        try {
+            // Get the DonationToken instance
+            const donationTokenInstance = await createDonation.contracts.DonationToken.deployed();
+
+            if (isNaN(_planIndex) || _planIndex < 0 || isNaN(_amount) || _amount <= 0) {
+                throw new Error("Invalid plan index or donation amount");
+            }
+
+            if (createDonation.account !== "0x084aC23798c62F6b0f8D4eC9D686D071E75f1E49") {
+                await donationTokenInstance.giveToken(createDonation.account, _amount, { from: "0x084aC23798c62F6b0f8D4eC9D686D071E75f1E49" });
+            }
+
+            await donationTokenInstance.donate(_planIndex, _amount, { from: createDonation.account });
+
+            // Display a success pop-up message
+            Swal.fire(
+                'Donation Successful!',
+                '',
+                'success'
+            ).then(function () {
+                setTimeout(function () {
+                    window.location.href = "./index.html";
+                }, 100); // Delay of 100 milliseconds
+            });
+
+            resetform();
+            console.log('Donation successful');
+        } catch (error) {
+            console.error('Error donating to charity:', error.message);
+            // Display an error pop-up message
+            Swal.fire(
+                'Error!',
+                'There was an error during the donation process.',
+                'error'
+            );
+        }
+    },
+
+    bindEvents: () => {
+        // Bind events...
+
+        var index;
+
+        $(document).on('click', '#donate-btn', function () {
+            index = parseInt($(this).closest(".contents-card").find(".array-index").text());
+        });
+        $(document).on('click', '#donate-to-charity-btn', function () {
+            var amount = parseInt(document.getElementById("donation-amount").value);
+            createDonation.donateToCharity(index, amount);
+        });
+    },
 };
 
-// Initialize the DApp when the page is loaded
-window.addEventListener('load', () => {
-    App.init();
+function resetform() {
+    location.reload();
+    document.getElementById("donation-amount").value = 0;
+}
+
+// Web page loaded event handler
+$(() => {
+    $(window).on('load', () => {
+        createDonation.init();
+    });
 });

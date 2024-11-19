@@ -13,26 +13,30 @@ body {
 
 /* Hero Section */
 .hero-section {
-    background: linear-gradient(135deg, #f0b429, #ff9f43);
-    color: #ffffff;
-    padding: 5rem 1rem;
+    background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('../image/banner.jpeg') no-repeat center center;
+    background-size: cover; /* Ensures the image covers the entire section */
+    height: 100vh; /* Full viewport height */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: #fff; /* Ensures text is visible */
     text-align: center;
-    position: relative;
-    overflow: hidden; /* Prevents child elements from causing overflow */
+    padding: 20px;
 }
+
 
 .hero-section-header {
     font-size: 3rem;
     font-weight: bold;
-    margin-bottom: 1rem;
+    margin-bottom: 20px;
 }
 
 .hero-section-description {
-    font-size: 1.2rem;
-    max-width: 700px;
-    margin: 0 auto;
-    line-height: 1.6;
+    font-size: 1.5rem;
+    max-width: 600px; /* Limits the description width */
 }
+
 
 .triangle,
 .circle {
@@ -96,40 +100,82 @@ body {
 .contents-card-container {
     display: flex;
     flex-wrap: wrap;
-    gap: 1.5rem; /* Adds a consistent gap between cards */
+    gap: 2rem; /* Increased gap between cards for better spacing */
     justify-content: center;
+    margin-top: 2rem;
 }
 
 .contents-card {
     background-color: #ffffff;
-    border-radius: 10px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 12px; /* Slightly more rounded corners for modern look */
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
     overflow: hidden;
-    max-width: 300px; /* Ensures cards don't get too large */
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    max-width: 320px; /* Slightly wider cards */
+    width: 100%; /* Ensure cards fill their container up to max-width */
+    transition: transform 0.3s ease, box-shadow 0.3s ease, border 0.3s ease; /* Smooth transition for hover effect */
+    cursor: pointer; /* Pointer cursor to indicate interactivity */
 }
 
 .contents-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+    transform: translateY(-8px); /* Slightly stronger upward movement */
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2); /* Larger shadow for depth */
+    border: 2px solid #00bcd4; /* Subtle border color on hover for emphasis */
 }
 
 .card-body {
-    padding: 1.5rem;
+    padding: 2rem; /* Increased padding for better spacing inside the card */
     text-align: left;
+    background-color: #f9f9f9; /* Light background color for card body */
+    border-radius: 0 0 12px 12px; /* Rounded bottom corners */
 }
 
 .contents-cards-image img {
     width: 100%;
-    height: 200px;
+    height: 220px; /* Slightly taller image */
     object-fit: cover;
+    border-radius: 12px 12px 0 0; /* Rounded top corners of the image */
+    transition: transform 0.3s ease; /* Smooth zoom effect on image */
+}
+
+.contents-cards-image img:hover {
+    transform: scale(1.05); /* Zoom effect on image hover */
 }
 
 .contents-card-header {
-    font-size: 1.3rem;
+    font-size: 1.4rem; /* Slightly larger text */
     font-weight: bold;
     color: #333333;
-    margin-bottom: 0.5rem;
+    margin-bottom: 1rem; /* More space below the header */
+    text-transform: uppercase; /* Make header text all uppercase for emphasis */
+    letter-spacing: 1px; /* Subtle spacing between letters for modern look */
+}
+
+.contents-card p {
+    font-size: 1rem;
+    color: #666666;
+    margin-bottom: 1rem; /* Space between description and other content */
+}
+
+.progress {
+    height: 10px;
+    border-radius: 5px; /* Rounded corners for progress bar */
+    background-color: #e0e0e0; /* Light background for progress */
+}
+
+.progress-bar {
+    background-color: #00bcd4; /* Bright, fresh color for the progress bar */
+    border-radius: 5px; /* Rounded corners for the progress bar */
+}
+
+/* Ensure cards are responsive */
+@media (max-width: 768px) {
+    .contents-card-container {
+        gap: 1rem; /* Smaller gap on mobile */
+    }
+
+    .contents-card {
+        max-width: 100%; /* Full width on small screens */
+    }
 }
 
 /* Modal and Form Styles */
@@ -185,7 +231,7 @@ body {
     font-weight: bold;
     text-align: center;
     margin-bottom: 2rem;
-    color: #333333;
+    color: #2f2e2e;
 }
 
 /* Features Section */
@@ -219,7 +265,7 @@ body {
 /* Testimonials Section */
 .testimonials-section {
     padding: 4rem 0;
-    background-color: #1f1f1f;
+    background-color: #8ad8ff;
     color: #ffffff;
 }
 
@@ -231,7 +277,7 @@ body {
 }
 
 .testimonial-card {
-    background-color: #333333;
+    background-color: #303030;
     border-radius: 10px;
     padding: 1.5rem;
     text-align: center;
@@ -282,4 +328,124 @@ body {
 
 .contact-form button:hover {
     background-color: #e09b28;
+}
+
+
+/* Add this CSS to your CSS file or in a <style> tag in the <head> */
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5); /* Semi-transparent overlay */
+    display: none; /* Hidden by default */
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    backdrop-filter: blur(5px); /* Blurs the background */
+}
+
+.loading-spinner {
+    border: 4px solid rgba(255, 255, 255, 0.3);
+    border-top: 4px solid #fff;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Header Styling */
+.contents-content h3 {
+    font-size: 2rem; /* Larger font size for prominence */
+    font-weight: bold; /* Makes the header stand out */
+    text-align: center; /* Center-align the header */
+    color: #333; /* Dark color for contrast */
+    margin-bottom: 2rem; /* Spacing below the header */
+}
+
+/* Form Styling */
+form#createDonationPlanForm {
+    background-color: #ffffff; /* White background for the form */
+    border: 1px solid #ddd; /* Light border for structure */
+    border-radius: 10px; /* Rounded corners */
+    padding: 3rem; /* Padding for inner content */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+    max-width: 800px; /* Increase max-width to extend the form */
+    width: 100%; /* Ensure the form spans the entire width available up to max-width */
+    margin: 0 auto; /* Center the form horizontally */
+    height: auto; /* Make the form height flexible */
+    min-height: 400px; /* Ensure the form is long enough */
+}
+
+/* Form Input and Textarea Styling */
+form#createDonationPlanForm .form-control {
+    border: 1px solid #ccc; /* Light border for inputs */
+    border-radius: 5px; /* Rounded edges */
+    padding: 0.75rem; /* Padding for comfortable typing */
+    font-size: 1rem; /* Standard text size */
+    color: #555; /* Muted text color */
+    transition: border-color 0.3s ease, box-shadow 0.3s ease; /* Smooth focus effects */
+    margin-bottom: 1.5rem; /* Space between form fields */
+}
+
+/* Input and Textarea Focus State */
+form#createDonationPlanForm .form-control:focus {
+    border-color: #17a2b8; /* Blue border on focus */
+    box-shadow: 0 0 5px rgba(23, 162, 184, 0.5); /* Glowing effect */
+    outline: none; /* Removes default outline */
+}
+
+/* Label Styling */
+form#createDonationPlanForm label {
+    font-size: 1rem; /* Standard font size */
+    color: #333; /* Dark color for readability */
+    margin-bottom: 0.5rem; /* Space between label and input */
+    display: inline-block; /* Ensures proper alignment */
+}
+
+/* Submit Button Styling */
+form#createDonationPlanForm button {
+    background-color: #17a2b8; /* Info color for button */
+    border: none; /* Removes border */
+    border-radius: 5px; /* Rounded corners */
+    padding: 0.5rem 1rem; /* Button size */
+    font-size: 1rem; /* Larger text size for readability */
+    font-weight: bold; /* Bold text */
+    color: #fff; /* White text */
+    cursor: pointer; /* Pointer cursor on hover */
+    transition: background-color 0.3s ease, transform 0.3s ease; /* Smooth hover effects */
+}
+
+/* Submit Button Hover Effect */
+form#createDonationPlanForm button:hover {
+    background-color: #138496; /* Darker shade on hover */
+    transform: translateY(-2px); /* Slight upward movement */
+}
+
+/* Submit Button Active State */
+form#createDonationPlanForm button:active {
+    background-color: #117a8b; /* Even darker shade on click */
+    transform: translateY(0); /* Resets movement */
+}
+
+/* Form Group Spacing */
+form#createDonationPlanForm .form-group {
+    margin-bottom: 1.5rem; /* Space between form groups */
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    form#createDonationPlanForm {
+        padding: 1.5rem; /* Reduce padding for smaller screens */
+    }
+
+    .contents-content h3 {
+        font-size: 1.5rem; /* Adjust header size */
+    }
 }

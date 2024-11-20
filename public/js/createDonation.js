@@ -46,7 +46,7 @@ const App = {
     initContract: async () => {
         try {
             // Load DonationToken.json
-            const response = await fetch('DonationToken.json');
+            const response = await fetch('./DonationToken.json');
             if (!response.ok) {
                 throw new Error(`Failed to fetch DonationToken.json. Status: ${response.status}`);
             }
